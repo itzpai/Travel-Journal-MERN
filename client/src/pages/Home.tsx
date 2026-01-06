@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { getAllEntries, deleteEntry } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import ContentCard from "../components/ContentCard";
 import { TravelEntry } from "../types";
 
@@ -8,6 +8,7 @@ export default function Home() {
   const [entries, setEntries] = useState<TravelEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     loadEntries();
@@ -27,6 +28,11 @@ export default function Home() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!isAuthenticated) {
+      alert("You must be logged in to delete an entry");
+      return;
+    }
+
     try {
       await deleteEntry(id);
       setEntries(entries.filter((entry) => entry._id !== id));
@@ -58,13 +64,6 @@ export default function Home() {
     return (
       <div className="text-center mt-5">
         <h2 className="font-normal text-xl mb-4">No travel entries yet.</h2>
-        <Link
-          to="/create"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors text-sm font-medium"
-        >
-          <span>+</span>
-          <span>Create Your First Entry</span>
-        </Link>
       </div>
     );
   }
@@ -72,7 +71,12 @@ export default function Home() {
   return (
     <main>
       {entries.map((entry) => (
-        <ContentCard key={entry._id} item={entry} onDelete={handleDelete} />
+        <ContentCard
+          key={entry._id}
+          item={entry}
+          onDelete={handleDelete}
+          canEdit={isAuthenticated}
+        />
       ))}
     </main>
   );
