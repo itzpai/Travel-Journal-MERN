@@ -47,7 +47,11 @@ export default function AuthProvider({
   useEffect(() => {
     async function refreshUser() {
       try {
-        const response = await api.post("/auth/refresh-token");
+        const response = await api.post(
+          "/auth/refresh-token",
+          {},
+          { withCredentials: true }
+        );
         api.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${response.data.token}`;

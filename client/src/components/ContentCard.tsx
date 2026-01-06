@@ -20,7 +20,7 @@ export default function ContentCard({ item, onDelete, canEdit }: EntryProps) {
   return (
     <article
       onClick={handlrCardClick}
-      className="flex items-stretch gap-4 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+      className="max-w-4xl mx-auto flex items-stretch gap-4 p-4 mb-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
     >
       <div className="w-31 h-40 rounded-lg overflow-hidden shrink-0">
         <img

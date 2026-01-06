@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
@@ -85,7 +85,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     const decoded = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET as string
-    ) as { userId: string };
+    ) as JwtPayload;
 
     const user = await User.findById(decoded.userId);
 
@@ -114,8 +114,11 @@ export const refreshToken = async (req: Request, res: Response) => {
         email: user.email,
       },
     });
-  } catch (error) {
-    console.error("Refresh token error:", error);
+  } catch (error: any) {
+    if (error instanceof jwt.TokenExpiredError) {
+      res.clearCookie("refreshToken");
+      return res.status(401).json({ message: "Refresh token expired" });
+    }
     return res.status(403).json({ message: "Invalid refresh token" });
   }
 };
@@ -131,13 +134,9 @@ export const logout = async (req: Request, res: Response) => {
     const decoded = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET as string
-    ) as { userId: string };
-    const user = await User.findById(decoded.userId);
+    ) as JwtPayload;
 
-    if (user) {
-      user.refreshToken = undefined;
-      await user.save();
-    }
+    await User.findByIdAndUpdate(decoded.userId, { refreshToken: null });
   } catch (error) {
     console.error("Logout error:", error);
   }
