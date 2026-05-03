@@ -12,11 +12,16 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
+    if (!email.includes("@")) {
+      setError("Email must include @");
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+    }
 
+    setLoading(true);
     try {
-      await login(email, password);
+      login(email, password);
       navigate("/", { replace: true });
     } catch (error) {
       setError("Login failed. Please check your credentials and try again.");
@@ -49,6 +54,7 @@ export default function Login() {
             <input
               type="email"
               required
+              autoComplete="email"
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
               placeholder="you@example.com"
               onChange={(e) => setEmail(e.target.value)}
@@ -62,8 +68,9 @@ export default function Login() {
             <input
               type="password"
               required
+              autoComplete="current-password"
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="••••••••"
+              placeholder="********"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>

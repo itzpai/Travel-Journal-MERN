@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllEntries, deleteEntry } from "../services/api";
+import { getAllEntries, deleteEntry } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import ContentCard from "../components/ContentCard";
 import { TravelEntry } from "../types";

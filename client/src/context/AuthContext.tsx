@@ -14,11 +14,24 @@ export default function AuthProvider({
   const [loading, setLoading] = useState(true);
 
   async function register(username: string, email: string, password: string) {
-    await api.post("/auth/register", {
-      username,
-      email,
-      password,
-    });
+    try {
+      const response = await api.post("/auth/register", {
+        username,
+        email,
+        password,
+      });
+      const responseData = response.data;
+      const payload = responseData.data;
+
+      if (responseData.code !== "200") {
+        throw new Error(responseData.message);
+      }
+      api.defaults.headers.common["Authorization"] = `Bearer ${payload.token}`;
+      setUser(payload.user);
+      return payload;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
   }
 
   async function login(email: string, password: string) {
@@ -26,20 +39,24 @@ export default function AuthProvider({
       const response = await api.post(
         "/auth/login",
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true },
       );
-      api.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.token}`;
-      setUser(response.data.user);
-      return response.data;
-    } catch (error) {
-      throw error;
+      const responseData = response.data;
+      const payload = responseData.data;
+
+      if (responseData.code !== "200") {
+        throw new Error(responseData.message);
+      }
+      api.defaults.headers.common["Authorization"] = `Bearer ${payload.token}`;
+      setUser(payload.user);
+      return payload;
+    } catch (error: any) {
+      throw new Error(error.message);
     }
   }
 
   async function logout() {
-    await api.post("/auth/logout");
+    await api.post("/auth/logout", {}, { withCredentials: true });
     setUser(null);
     delete api.defaults.headers.common["Authorization"];
   }
@@ -50,13 +67,15 @@ export default function AuthProvider({
         const response = await api.post(
           "/auth/refresh-token",
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
-        api.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${response.data.token}`;
-        if (response.data.user) {
-          setUser(response.data.user);
+        const responseData = response.data;
+        const payload = responseData.data;
+
+        if (responseData.code === "200" && payload) {
+          api.defaults.headers.common["Authorization"] =
+            `Bearer ${payload.token}`;
+          setUser(payload.user);
         }
       } catch (error) {
         setUser(null);

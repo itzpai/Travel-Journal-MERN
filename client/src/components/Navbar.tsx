@@ -11,7 +11,7 @@ export default function Navbar() {
           <span className="text-xl">🌍</span>
           <Link
             to="/"
-            className="ml-1 text-black font-semibold text-lg no-underline"
+            className="ml-1 text-black text-2xl font-semibold italic no-underline"
           >
             Travel Journal.
           </Link>

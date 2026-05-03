@@ -3,9 +3,8 @@ import { EntryProps } from "../types";
 
 export default function ContentCard({ item, onDelete, canEdit }: EntryProps) {
   const navigate = useNavigate();
-  const googleMapsUrl = item.googleMapsUrl || item.location;
 
-  const handlrCardClick = () => {
+  const handleCardClick = () => {
     navigate(`/entry/${item._id}`);
   };
 
@@ -19,7 +18,7 @@ export default function ContentCard({ item, onDelete, canEdit }: EntryProps) {
 
   return (
     <article
-      onClick={handlrCardClick}
+      onClick={handleCardClick}
       className="max-w-4xl mx-auto flex items-stretch gap-4 p-4 mb-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
     >
       <div className="w-31 h-40 rounded-lg overflow-hidden shrink-0">
@@ -38,7 +37,7 @@ export default function ContentCard({ item, onDelete, canEdit }: EntryProps) {
               {item.name}
             </h2>
             <a
-              href={googleMapsUrl}
+              href={item.location}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -58,7 +57,11 @@ export default function ContentCard({ item, onDelete, canEdit }: EntryProps) {
           )}
         </div>
 
-        <div className="mt-5">
+        <div className="text-sm text-gray-500">
+          Author: <strong>{item.user.username}</strong>
+        </div>
+
+        <div className="mt-2">
           <h3 className="text-base font-bold text-gray-700 uppercase mb-2">
             {item.country}
           </h3>

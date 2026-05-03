@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getEntryById } from "../services/api";
+import { getEntryById } from "../utils/api";
 import { TravelEntry } from "../types";
 
 export default function EntryDetail() {

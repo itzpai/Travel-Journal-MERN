@@ -1,19 +1,19 @@
 export type TravelEntry = {
   _id: string;
+  user: { _id: string; username: string };
   name: string;
   location: string;
   country: string;
   about: string;
   imageUrl: string;
-  googleMapsUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 };
 
 export type EntryProps = {
   item: TravelEntry;
-  onDelete: (id: string) => void;
   canEdit: boolean;
+  onDelete: (id: string) => void;
 };
 
 export type TravelEntryFormData = {
@@ -25,10 +25,10 @@ export type TravelEntryFormData = {
 };
 
 export type ApiResponse<T> = {
-  success: boolean;
+  code: string;
+  status: string;
+  message: string;
   data?: T;
-  error?: string;
-  count?: number;
 };
 
 export type User = {

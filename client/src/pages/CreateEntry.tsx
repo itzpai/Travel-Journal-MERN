@@ -1,39 +1,41 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { createEntry } from '../services/api'
-import { TravelEntryFormData } from '../types'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { createEntry } from "../utils/api";
+import { TravelEntryFormData } from "../types";
 
 export default function CreateEntry() {
   const [formData, setFormData] = useState<TravelEntryFormData>({
-    name: '',
-    location: '',
-    country: '',
-    about: '',
-    imageUrl: '',
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+    name: "",
+    location: "",
+    country: "",
+    about: "",
+    imageUrl: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
     try {
-      const newEntry = await createEntry(formData)
-      window.location.href = `/entry/${newEntry._id}`
+      const newEntry = await createEntry(formData);
+      window.location.href = `/entry/${newEntry._id}`;
     } catch (err) {
-      setError('Failed to create entry. Please try again.')
+      setError("Failed to create entry. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -45,11 +47,19 @@ export default function CreateEntry() {
         <span>Back</span>
       </Link>
 
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Create New Travel Entry</h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">
+        Create New Travel Entry
+      </h1>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-lg shadow-md p-6 space-y-6"
+      >
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Name *
           </label>
           <input
@@ -65,7 +75,10 @@ export default function CreateEntry() {
         </div>
 
         <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="location"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Google Maps URL *
           </label>
           <input
@@ -81,7 +94,10 @@ export default function CreateEntry() {
         </div>
 
         <div>
-          <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="country"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Country *
           </label>
           <input
@@ -97,7 +113,10 @@ export default function CreateEntry() {
         </div>
 
         <div>
-          <label htmlFor="about" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="about"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             About *
           </label>
           <textarea
@@ -113,7 +132,10 @@ export default function CreateEntry() {
         </div>
 
         <div>
-          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="imageUrl"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Image URL *
           </label>
           <input
@@ -146,11 +168,10 @@ export default function CreateEntry() {
             disabled={loading}
             className="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Creating...' : 'Create Entry'}
+            {loading ? "Creating..." : "Create Entry"}
           </button>
         </div>
       </form>
     </div>
-  )
+  );
 }
-
