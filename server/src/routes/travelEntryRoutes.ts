@@ -1,4 +1,5 @@
 import express from "express";
+import { verifyJWT } from "../middleware/auth";
 import {
   getAllEntries,
   getEntryById,
@@ -11,8 +12,8 @@ const router = express.Router();
 
 router.get("/", getAllEntries);
 router.get("/:id", getEntryById);
-router.post("/", createEntry);
-router.put("/:id", updateEntry);
+router.post("/", verifyJWT, createEntry);
+router.put("/:id", verifyJWT, updateEntry);
 router.delete("/:id", deleteEntry);
 
 export default router;

@@ -1,154 +1,116 @@
 import { Request, Response } from "express";
 import TravelEntry from "../models/TravelEntry";
+import HttpStatusCodes from "../helpers/status_code_helper";
 
 export const getAllEntries = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    const entries = await TravelEntry.find().sort({ createdAt: -1 });
-    res.status(200).json({
-      success: true,
-      count: entries.length,
-      data: entries,
-    });
+    const entries = await TravelEntry.find()
+      .populate("user", "username")
+      .sort({ createdAt: -1 });
+    res.status(200).json(HttpStatusCodes.OK(entries));
   } catch (error) {
-    console.error("Error fetching entries:", error);
-    res.status(500).json({
-      success: false,
-      error: "Server error while fetching entries",
-    });
+    res
+      .status(500)
+      .json(HttpStatusCodes.UNKNOWN("Server error while fetching entries"));
   }
 };
 
 export const getEntryById = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    const entry = await TravelEntry.findById(req.params.id);
+    const entry = await TravelEntry.findById(req.params.id).populate(
+      "user",
+      "username",
+    );
 
     if (!entry) {
-      res.status(404).json({
-        success: false,
-        error: "Travel entry not found",
-      });
+      res.status(404).json(HttpStatusCodes.NOT_FOUND("Travel entry not found"));
       return;
     }
 
-    res.status(200).json({
-      success: true,
-      data: entry,
-    });
+    res.status(200).json(HttpStatusCodes.OK(entry));
   } catch (error) {
-    console.error("Error fetching entry:", error);
-    res.status(500).json({
-      success: false,
-      error: "Server error while fetching entry",
-    });
+    res
+      .status(500)
+      .json(HttpStatusCodes.UNKNOWN("Server error while fetching entry"));
   }
 };
 
 export const createEntry = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    const entry = await TravelEntry.create(req.body);
-
-    res.status(201).json({
-      success: true,
-      data: entry,
+    const entry = await TravelEntry.create({
+      ...req.body,
+      user: req.user?._id,
     });
+
+    res
+      .status(201)
+      .json(HttpStatusCodes.OK(entry, "Entry created successfully"));
   } catch (error: any) {
-    console.error("Error creating entry:", error);
-
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map(
-        (err: any) => err.message
-      );
-      res.status(400).json({
-        success: false,
-        error: messages.join(", "),
-      });
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: "Server error while creating entry",
-    });
+    res.status(400).json(HttpStatusCodes.INVALID_ARGUMENT(error.message));
   }
 };
 
 export const updateEntry = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    const entry = await TravelEntry.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const entry = await TravelEntry.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.user?._id,
+      },
+      req.body,
+      { new: true, runValidators: true },
+    );
 
     if (!entry) {
-      res.status(404).json({
-        success: false,
-        error: "Travel entry not found",
-      });
+      res
+        .status(403)
+        .json(
+          HttpStatusCodes.PERMISSION_DENIED(
+            "Not authorized to update this entry or entry not found",
+          ),
+        );
       return;
     }
 
-    res.status(200).json({
-      success: true,
-      data: entry,
-    });
+    res.status(200).json(HttpStatusCodes.OK(entry));
   } catch (error: any) {
-    console.error("Error updating entry:", error);
-
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map(
-        (err: any) => err.message
-      );
-      res.status(400).json({
-        success: false,
-        error: messages.join(", "),
-      });
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: "Server error while updating entry",
-    });
+    res.status(400).json(HttpStatusCodes.INVALID_ARGUMENT(error.message));
   }
 };
 
 export const deleteEntry = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    const entry = await TravelEntry.findByIdAndDelete(req.params.id);
+    console.log("User:", req.user?._id ?? "unknown");
+    console.log("Entry ID:", req.params.id);
+    const entry = await TravelEntry.findById(req.params.id);
+    console.log("Entry owner:", entry?.user);
 
     if (!entry) {
-      res.status(404).json({
-        success: false,
-        error: "Travel entry not found",
-      });
+      res.status(404).json(HttpStatusCodes.NOT_FOUND("Travel entry not found"));
       return;
     }
 
-    res.status(200).json({
-      success: true,
-      data: {},
-      message: "Travel entry deleted successfully",
-    });
+    res
+      .status(200)
+      .json(HttpStatusCodes.OK({}, "Travel entry deleted successfully"));
   } catch (error) {
-    console.error("Error deleting entry:", error);
-    res.status(500).json({
-      success: false,
-      error: "Server error while deleting entry",
-    });
+    res
+      .status(500)
+      .json(HttpStatusCodes.UNKNOWN("Server error while deleting entry"));
   }
 };

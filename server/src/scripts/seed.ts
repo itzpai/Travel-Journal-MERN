@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import TravelEntry from "../models/TravelEntry";
+import User from "../models/User";
 import connectDB from "../config/database";
 
 dotenv.config();
@@ -60,12 +61,24 @@ const seedData = [
 const seedDatabase = async () => {
   try {
     await connectDB();
+
+    const users = await User.find({});
+    const user1 = users[0]._id;
+    const user2 = users[1]._id;
+
     await TravelEntry.deleteMany({});
     console.log("Cleared existing entries");
 
-    const entries = await TravelEntry.insertMany(seedData);
-    console.log(`Successfully seeded ${entries.length} travel entries`);
+    // Assign entries to users alternately
+    const seedDataWithUsers = seedData.map((entry, index) => ({
+      ...entry,
+      user: index % 2 === 0 ? user1 : user2,
+    }));
 
+    const entries = await TravelEntry.insertMany(seedDataWithUsers);
+    console.log(
+      `Successfully seeded ${entries.length} travel entries with users`
+    );
     process.exit(0);
   } catch (error) {
     console.error("Error seeding database:", error);

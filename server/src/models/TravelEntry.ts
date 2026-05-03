@@ -1,18 +1,23 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface TravelEntry extends Document {
+  user: mongoose.Types.ObjectId;
   name: string;
   location: string; // Google Maps URL
   country: string;
   about: string;
   imageUrl: string;
-  googleMapsUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const TravelEntrySchema: Schema = new Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User reference is required"],
+    },
     name: {
       type: String,
       required: [true, "Name is required"],
@@ -53,14 +58,8 @@ const TravelEntrySchema: Schema = new Schema(
         message: "Please provide a valid image URL",
       },
     },
-    googleMapsUrl: {
-      type: String,
-      trim: true,
-    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 export default mongoose.model<TravelEntry>("TravelEntry", TravelEntrySchema);
