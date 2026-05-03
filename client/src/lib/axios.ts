@@ -27,11 +27,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Don't intercept errors from the refresh-token endpoint itself
+    // Don't intercept errors from auth endpoints (login, register, refresh)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes("/auth/refresh-token")
+      !originalRequest.url?.includes("/auth/refresh-token") &&
+      !originalRequest.url?.includes("/auth/login") &&
+      !originalRequest.url?.includes("/auth/register")
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {

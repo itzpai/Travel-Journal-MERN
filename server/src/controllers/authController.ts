@@ -75,7 +75,7 @@ export const login = async (req: Request, res: Response) => {
     if (!user) {
       return res
         .status(400)
-        .json(HttpStatusCodes.INVALID_ARGUMENT("Invalid credentials"));
+        .json(HttpStatusCodes.INVALID_ARGUMENT("User not found"));
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -90,11 +90,7 @@ export const login = async (req: Request, res: Response) => {
     const accessToken = generateAccessToken(user._id.toString());
     const refreshToken = generateRefreshToken(user._id.toString());
 
-    //store refresh token in database
-    user.refreshToken = refreshToken;
-    await user.save();
-
-    //set cookie only in production mode
+    //set new cookie only in production mode
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -102,7 +98,7 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    //set response with token and user data
+    //success
     res.status(200).json(
       HttpStatusCodes.OK(
         {

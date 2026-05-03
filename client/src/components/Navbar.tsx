@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -13,6 +13,22 @@ export default function Navbar() {
     setShowLogoutModal(false);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (showLogoutModal && e.key === "Enter") {
+        confirmLogout();
+      }
+    };
+
+    if (showLogoutModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showLogoutModal]);
+
   return (
     <header className="bg-white shadow-sm relative z-40">
       <nav className="flex items-center justify-between py-4 px-4 max-w-7xl mx-auto">
@@ -25,7 +41,7 @@ export default function Navbar() {
             Travel Journal.
           </Link>
         </div>
-        
+
         <div className="flex items-center gap-4">
           {user && (
             <Link
@@ -36,7 +52,7 @@ export default function Navbar() {
               <span>Create Entry</span>
             </Link>
           )}
-          
+
           {user ? (
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-gray-700">
@@ -72,26 +88,24 @@ export default function Navbar() {
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity"
             onClick={cancelLogout}
           />
-          
+
           {/* Modal Content */}
           <div className="relative bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm transform transition-all scale-100 opacity-100 border border-gray-100">
             <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-2xl mb-4">
-                👋
-              </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Leaving so soon?
               </h3>
               <p className="text-gray-500 text-sm">
-                Are you sure you want to log out? You'll need to sign back in to add new memories.
+                Are you sure you want to log out? You'll need to sign back in to
+                add new memories.
               </p>
             </div>
-            
-            <div className="flex flex-col gap-3">
+
+            <div className="flex gap-3">
               <button
                 onClick={confirmLogout}
                 className="w-full py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-[0.98]"

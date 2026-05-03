@@ -1,40 +1,37 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createEntry } from "../utils/api";
-import { TravelEntryFormData } from "../types";
+import { entrySchema, EntryFormDataZod } from "../validations/schemas";
 
 export default function CreateEntry() {
-  const [formData, setFormData] = useState<TravelEntryFormData>({
-    name: "",
-    location: "",
-    country: "",
-    about: "",
-    imageUrl: "",
+  const navigate = useNavigate();
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EntryFormDataZod>({
+    resolver: zodResolver(entrySchema),
+    defaultValues: {
+      name: "",
+      location: "",
+      country: "",
+      about: "",
+      imageUrl: "",
+    },
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  const onSubmit = async (data: EntryFormDataZod) => {
+    setApiError(null);
     try {
-      const newEntry = await createEntry(formData);
-      window.location.href = `/entry/${newEntry._id}`;
-    } catch (err) {
-      setError("Failed to create entry. Please try again.");
-    } finally {
-      setLoading(false);
+      const newEntry = await createEntry(data);
+      navigate(`/entry/${newEntry._id}`);
+    } catch (err: any) {
+      setApiError(err.message || "Failed to create entry. Please try again.");
     }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
   };
 
   return (
@@ -52,7 +49,7 @@ export default function CreateEntry() {
       </h1>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="bg-white rounded-lg shadow-md p-6 space-y-6"
       >
         <div>
@@ -65,13 +62,17 @@ export default function CreateEntry() {
           <input
             type="text"
             id="name"
-            name="name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+              errors.name ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="e.g., Bagan"
+            {...register("name")}
           />
+          {errors.name && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.name.message as string}
+            </p>
+          )}
         </div>
 
         <div>
@@ -84,13 +85,17 @@ export default function CreateEntry() {
           <input
             type="url"
             id="location"
-            name="location"
-            required
-            value={formData.location}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+              errors.location ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="https://maps.google.com/..."
+            {...register("location")}
           />
+          {errors.location && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.location.message as string}
+            </p>
+          )}
         </div>
 
         <div>
@@ -103,13 +108,17 @@ export default function CreateEntry() {
           <input
             type="text"
             id="country"
-            name="country"
-            required
-            value={formData.country}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+              errors.country ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="e.g., Myanmar"
+            {...register("country")}
           />
+          {errors.country && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.country.message as string}
+            </p>
+          )}
         </div>
 
         <div>
@@ -121,14 +130,18 @@ export default function CreateEntry() {
           </label>
           <textarea
             id="about"
-            name="about"
-            required
             rows={6}
-            value={formData.about}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+              errors.about ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Tell us about this place..."
+            {...register("about")}
           />
+          {errors.about && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.about.message as string}
+            </p>
+          )}
         </div>
 
         <div>
@@ -141,18 +154,22 @@ export default function CreateEntry() {
           <input
             type="url"
             id="imageUrl"
-            name="imageUrl"
-            required
-            value={formData.imageUrl}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+              errors.imageUrl ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="https://example.com/image.jpg"
+            {...register("imageUrl")}
           />
+          {errors.imageUrl && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.imageUrl.message as string}
+            </p>
+          )}
         </div>
 
-        {error && (
+        {apiError && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
+            {apiError}
           </div>
         )}
 
@@ -165,10 +182,10 @@ export default function CreateEntry() {
           </Link>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating..." : "Create Entry"}
+            {isSubmitting ? "Creating..." : "Create Entry"}
           </button>
         </div>
       </form>

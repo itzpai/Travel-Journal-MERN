@@ -5,6 +5,7 @@ import EntryDetail from "./pages/EntryDetail";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import GuestRoute from "./components/GuestRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -14,7 +15,14 @@ export default function App() {
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/create"
             element={
@@ -23,9 +31,30 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/entry/:id" element={<EntryDetail />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route
+            path="/entry/:id"
+            element={
+              <ProtectedRoute>
+                <EntryDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <GuestRoute>
+                <Login />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <Register />
+              </GuestRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

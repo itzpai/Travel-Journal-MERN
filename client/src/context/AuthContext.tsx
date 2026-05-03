@@ -30,6 +30,9 @@ export default function AuthProvider({
       setUser(payload.user);
       return payload;
     } catch (error: any) {
+      if (error.response?.status === 500) {
+        throw new Error("Server error");
+      }
       const errorMessage = error.response?.data?.message || error.message;
       throw new Error(errorMessage);
     }
@@ -52,6 +55,9 @@ export default function AuthProvider({
       setUser(payload.user);
       return payload;
     } catch (error: any) {
+      if (error.response?.status === 500) {
+        throw new Error("Server error");
+      }
       const errorMessage = error.response?.data?.message || error.message;
       throw new Error(errorMessage);
     }

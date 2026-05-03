@@ -5,11 +5,12 @@ interface Props {
   children: JSX.Element;
 }
 
-export default function ProtectedRoute({ children }: Props) {
+export default function GuestRoute({ children }: Props) {
   const { isAuthenticated } = useAuth();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  // If the user is logged in, redirect them away from guest pages (Login/Register)
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
   }
 
   return children;
