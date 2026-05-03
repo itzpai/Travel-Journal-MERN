@@ -12,16 +12,16 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      register(username, email, password);
+      await register(username, email, password);
       navigate("/login");
-    } catch {
-      setError("Registration failed. Try another email.");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export default function Register() {
               required
               minLength={8}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-              placeholder="••••••••"
+              placeholder="********"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>

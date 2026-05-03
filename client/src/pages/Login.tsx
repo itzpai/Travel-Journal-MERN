@@ -12,19 +12,18 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
+
     if (!email.includes("@")) {
-      setError("Email must include @");
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      return setError("Email must include @");
     }
 
     setLoading(true);
     try {
-      login(email, password);
+      await login(email, password);
       navigate("/", { replace: true });
-    } catch (error) {
-      setError("Login failed. Please check your credentials and try again.");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }

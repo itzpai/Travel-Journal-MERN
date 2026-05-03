@@ -71,7 +71,7 @@ export default function EntryDetail() {
             <span>📍</span>
             <span>{entry.name.toUpperCase()}</span>
             <a
-              href={entry.googleMapsUrl || entry.location}
+              href={entry.location}
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 underline lowercase hover:text-red-500 transition-colors ml-3"

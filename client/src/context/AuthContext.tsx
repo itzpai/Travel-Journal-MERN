@@ -30,7 +30,8 @@ export default function AuthProvider({
       setUser(payload.user);
       return payload;
     } catch (error: any) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.data?.message || error.message;
+      throw new Error(errorMessage);
     }
   }
 
@@ -51,7 +52,8 @@ export default function AuthProvider({
       setUser(payload.user);
       return payload;
     } catch (error: any) {
-      throw new Error(error.message);
+      const errorMessage = error.response?.data?.message || error.message;
+      throw new Error(errorMessage);
     }
   }
 

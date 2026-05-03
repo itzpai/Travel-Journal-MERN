@@ -15,13 +15,15 @@ export const register = async (req: Request, res: Response) => {
         .json(HttpStatusCodes.INVALID_ARGUMENT("All fields are required"));
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
 
     //check if user already exists
     if (existingUser) {
-      return res
-        .status(409)
-        .json(HttpStatusCodes.ALREADY_EXISTS("User already exists"));
+      const message =
+        existingUser.email === email
+          ? "User already exists with this email"
+          : "Username is already taken";
+      return res.status(409).json(HttpStatusCodes.ALREADY_EXISTS(message));
     }
 
     //password hashing
