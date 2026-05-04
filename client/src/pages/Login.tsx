@@ -75,6 +75,14 @@ export default function Login() {
               placeholder="********"
               {...register("password")}
             />
+            <div className="flex justify-end mt-1">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-gray-600 hover:text-gray-900 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             {errors.password && (
               <p className="mt-1 text-xs text-red-600">
                 {errors.password.message as string}

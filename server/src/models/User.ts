@@ -5,6 +5,10 @@ export interface IUser extends Document {
   email: string;
   password: string;
   refreshToken?: string;
+  otp?: string;
+  otpExpires?: Date;
+  resetToken?: string;
+  resetTokenExpires?: Date;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -27,6 +31,18 @@ const UserSchema = new Schema<IUser>(
     },
     refreshToken: {
       type: String,
+    },
+    otp: {
+      type: String,
+    },
+    otpExpires: {
+      type: Date,
+    },
+    resetToken: {
+      type: String,
+    },
+    resetTokenExpires: {
+      type: Date,
     },
   },
   { timestamps: true }

@@ -8,6 +8,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPasswordEmail from "./pages/auth/ForgotPasswordEmail";
+import ForgotPasswordOTP from "./pages/auth/ForgotPasswordOTP";
+import ForgotPasswordReset from "./pages/auth/ForgotPasswordReset";
 
 export default function App() {
   return (
@@ -52,6 +55,30 @@ export default function App() {
             element={
               <GuestRoute>
                 <Register />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <GuestRoute>
+                <ForgotPasswordEmail />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/verify-otp"
+            element={
+              <GuestRoute>
+                <ForgotPasswordOTP />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <GuestRoute>
+                <ForgotPasswordReset />
               </GuestRoute>
             }
           />

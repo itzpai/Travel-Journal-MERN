@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import User from "../models/User";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import HttpStatusCodes from "../helpers/status_code_helper";
+import crypto from "crypto";
+import { sendOTPEmail } from "../utils/email";
 
 export const register = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
@@ -216,5 +218,132 @@ export const logout = async (req: Request, res: Response) => {
     res
       .status(500)
       .json(HttpStatusCodes.UNKNOWN("Server error while logging out"));
+  }
+};
+
+export const requestOTP = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  try {
+    if (!email) {
+      return res
+        .status(400)
+        .json(HttpStatusCodes.INVALID_ARGUMENT("Email is required"));
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json(HttpStatusCodes.NOT_FOUND("User with this email not found"));
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    await sendOTPEmail(email, otp);
+
+    res
+      .status(200)
+      .json(HttpStatusCodes.OK(undefined, "OTP sent to your email"));
+  } catch (error) {
+    console.error("Request OTP error:", error);
+    res
+      .status(500)
+      .json(HttpStatusCodes.UNKNOWN("Server error while requesting OTP"));
+  }
+};
+
+export const verifyOTP = async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+  try {
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json(HttpStatusCodes.INVALID_ARGUMENT("Email and OTP are required"));
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json(HttpStatusCodes.NOT_FOUND("User not found"));
+    }
+
+    if (user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+      return res
+        .status(400)
+        .json(HttpStatusCodes.INVALID_ARGUMENT("Invalid or expired OTP"));
+    }
+
+    // Generate short-lived reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.resetToken = resetToken;
+    user.resetTokenExpires = resetTokenExpires;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    res.status(200).json(
+      HttpStatusCodes.OK(
+        {
+          resetToken,
+        },
+        "OTP verified successfully",
+      ),
+    );
+  } catch (error) {
+    console.error("Verify OTP error:", error);
+    res
+      .status(500)
+      .json(HttpStatusCodes.UNKNOWN("Server error while verifying OTP"));
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const { email, resetToken, newPassword } = req.body;
+  try {
+    if (!email || !resetToken || !newPassword) {
+      return res
+        .status(400)
+        .json(HttpStatusCodes.INVALID_ARGUMENT("All fields are required"));
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json(HttpStatusCodes.NOT_FOUND("User not found"));
+    }
+
+    if (
+      user.resetToken !== resetToken ||
+      !user.resetTokenExpires ||
+      user.resetTokenExpires < new Date()
+    ) {
+      return res
+        .status(400)
+        .json(HttpStatusCodes.INVALID_ARGUMENT("Invalid or expired reset token"));
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpires = undefined;
+    await user.save();
+
+    res
+      .status(200)
+      .json(HttpStatusCodes.OK(undefined, "Password reset successfully"));
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res
+      .status(500)
+      .json(HttpStatusCodes.UNKNOWN("Server error while resetting password"));
   }
 };
