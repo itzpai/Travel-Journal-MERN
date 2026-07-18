@@ -95,7 +95,7 @@ export const login = async (req: Request, res: Response) => {
     //set new cookie only in production mode
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
