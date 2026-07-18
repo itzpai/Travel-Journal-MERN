@@ -58,13 +58,25 @@ const seedData = [
   },
 ];
 
+import bcrypt from "bcryptjs";
+
 const seedDatabase = async () => {
   try {
     await connectDB();
 
-    const users = await User.find({});
-    const user1 = users[0]._id;
-    const user2 = users[1]._id;
+    await User.deleteMany({});
+    console.log("Cleared existing users");
+
+    const hashedPassword = await bcrypt.hash("Password123", 10);
+    
+    const createdUsers = await User.insertMany([
+      { username: "pta", email: "pta@example.com", password: hashedPassword },
+      { username: "ynp", email: "ynp@example.com", password: hashedPassword },
+    ]);
+    console.log("Created test users");
+
+    const user1 = createdUsers[0]._id;
+    const user2 = createdUsers[1]._id;
 
     await TravelEntry.deleteMany({});
     console.log("Cleared existing entries");
