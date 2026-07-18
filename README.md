@@ -38,10 +38,29 @@ Travel Journal/
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- MongoDB Atlas account (free tier) or local MongoDB instance
-- npm or yarn
+- Docker & Docker Compose (Recommended)
+- MongoDB Atlas account (free tier) or local MongoDB instance (if not using Docker)
 
-### Backend Setup
+### 🐳 Quick Start with Docker (Recommended)
+
+1. Make sure Docker Desktop is running on your machine.
+2. From the root directory, build and start the containers:
+```bash
+docker compose up -d --build
+```
+3. Once the containers are running, navigate to the `server` directory and run the database seeder to populate test data and user accounts (e.g., `pta@example.com` and `ynp@example.com` with password `Password123`):
+```bash
+cd server
+npm install
+$env:MONGODB_LOCAL_URI="mongodb://localhost:27017/travel_journal"; npm run seed
+```
+*(On Mac/Linux use: `MONGODB_LOCAL_URI="mongodb://localhost:27017/travel_journal" npm run seed`)*
+
+4. The application is now running and fully accessible at `http://localhost:3000`
+
+### 💻 Manual Local Setup
+
+#### Backend Setup
 
 1. Navigate to the server directory:
 ```bash
@@ -57,8 +76,9 @@ npm install
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=your-mongodb-connection-string
-JWT_SECRET=your-secret-key
+MONGODB_LOCAL_URI=mongodb://localhost:27017/travel_journal
+ACCESS_TOKEN_SECRET=your-access-secret-key
+REFRESH_TOKEN_SECRET=your-refresh-secret-key
 ```
 
 4. Start the development server:
@@ -68,7 +88,7 @@ npm run dev
 
 The API will be running on `http://localhost:5000`
 
-### Frontend Setup
+#### Frontend Setup
 
 1. Navigate to the client directory:
 ```bash
